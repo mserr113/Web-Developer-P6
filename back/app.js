@@ -18,6 +18,6 @@ app.use(express.static('images'));
 app.use(express.urlencoded({extended: true}));
 app.use(express.json());
 
-app.use('/api/user', userRoutes);
+app.use('/api/auth', userRoutes);
 
 module.exports = app;
