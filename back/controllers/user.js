@@ -1,6 +1,12 @@
 // const uuid = require('uuid/v1');
-const user = require('../models/user');
+// const user = require('../models/user');
 
+exports.signup = (req, res) => {
+    res.status(200).send("signup")
+};
+exports.login = (req, res) => {
+    res.status(200).send()
+};
 // exports.getAllProducts = (req, res, next) => {
 //   Product.find().then(
 //     (products) => {
