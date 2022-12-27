@@ -22,7 +22,7 @@ export class SignupComponent implements OnInit {
   ngOnInit() {
     this.signupForm = this.formBuilder.group({
       email: [null, [Validators.required, Validators.email]],
-      password: [null, Validators.required]
+      password: [null, [Validators.required]]
     });
   }
 
@@ -30,13 +30,19 @@ export class SignupComponent implements OnInit {
     this.loading = true;
     const email = this.signupForm.get('email')!.value;
     const password = this.signupForm.get('password')!.value;
+    console.log(email)
+    console.log(password)
     this.auth.createUser(email, password).pipe(
       switchMap(() => this.auth.loginUser(email, password)),
       tap(() => {
+        console.log(email);
+        console.log(password);
         this.loading = false;
         this.router.navigate(['/sauces']);
       }),
       catchError(error => {
+        console.log(email);
+        console.log(password);
         this.loading = false;
         this.errorMsg = error.message;
         return EMPTY;
