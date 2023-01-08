@@ -1,5 +1,7 @@
 const Sauce = require('../models/sauce');
 const fs = require('fs');
+const sauce = require('../models/sauce');
+const { restart } = require('nodemon');
 
 exports.createSauce = (req, res, next) => {
     req.body.sauce = JSON.parse(req.body.sauce);  
@@ -99,6 +101,55 @@ exports.modifySauce = (req, res, next) => {
       }
     );
   };
+
+exports.likeSauce = (req, res, next) => {
+  Sauce.findOne({_id:req.params._id}).then(
+    (sauce) => {
+      if(!sauce){
+        return res.status(400).json({
+          error: error
+        });
+      }else{
+        const currentUserId = req.body.userId;
+        sauce.findOne({
+          usersLiked:currentUserId
+        }).then((userPresent)=>{
+          if(!userPresent){
+            sauce.updateOne({
+              $push: {usersLiked: currentUserId}
+            })
+          }
+        }).catch((error)=>{
+          (error) => {
+            res.status(400).json({
+              error: error
+            });
+          }
+        })
+      } 
+    }
+  ).catch(
+    (error) => {
+      res.status(400).json({
+        error: error
+      });
+    }
+  );
+    // if(!sauce)
+    //   return res.status(400).json({
+    //     message: 'sauce does not exist!'
+    //   });
+    
+  //   $push:{usersLiked:req.body.userId}
+  // },{new:true
+  // }).exec((err,result)=>{
+  //   if(err){
+  //     res.status(400).json({
+  //       error: error
+  //     });
+  //   }
+  // });
+}
 
 exports.deleteSauce = (req, res, next) => {
   Sauce.findOne({_id: req.params.id}).then(
