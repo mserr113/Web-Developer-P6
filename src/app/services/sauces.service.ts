@@ -31,7 +31,7 @@ export class SaucesService {
   }
 
   likeSauce(id: string, like: boolean) {
-    return this.http.post<{ message: string }>(
+    return this.http.put<{ message: string }>(
       'http://localhost:3000/api/sauces/' + id + '/like',
       { userId: this.auth.getUserId(), like: like ? 1 : 0 }
     ).pipe(
@@ -41,7 +41,7 @@ export class SaucesService {
   }
 
   dislikeSauce(id: string, dislike: boolean) {
-    return this.http.post<{ message: string }>(
+    return this.http.put<{ message: string }>(
       'http://localhost:3000/api/sauces/' + id + '/like',
       { userId: this.auth.getUserId(), like: dislike ? -1 : 0 }
     ).pipe(

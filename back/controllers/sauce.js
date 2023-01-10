@@ -35,9 +35,7 @@ exports.createSauce = (req, res, next) => {
 };
 
 exports.getOneSauce = (req, res, next) => {
-    Sauce.findOne({
-      _id: req.params.id
-    }).then(
+    Sauce.findOne({_id: req.params.id}).then(
       (sauce) => {
         res.status(200).json(sauce);
       }
@@ -103,11 +101,14 @@ exports.modifySauce = (req, res, next) => {
   };
 
 exports.likeSauce = (req, res, next) => {
+  let sauce = req.params._id;
+  console.log(sauce);
   Sauce.findOne({_id:req.params._id}).then(
     (sauce) => {
       if(!sauce){
-        return res.status(400).json({
-          error: error
+        return res.status(400).send({
+          message: "this is not a sauce",
+          data:{}
         });
       }else{
         const currentUserId = req.body.userId;
