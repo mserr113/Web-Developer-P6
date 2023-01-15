@@ -49,7 +49,7 @@ exports.getOneSauce = (req, res, next) => {
   };
 
 exports.modifySauce = (req, res, next) => {
-    let sauce = new Sauce({_id: req.params._id });
+    let sauce = new Sauce({_id: req.params.id });
     if(req.file) {
       req.body.sauce = JSON.parse(req.body.sauce);  
       const url = req.protocol  + '://' + req.get('host');  
@@ -85,6 +85,7 @@ exports.modifySauce = (req, res, next) => {
         userId: req.body.userId,
       };
     }
+    //this needs to  be added at the end of the like/dislike code
     Sauce.updateOne({_id: req.params.id}, sauce).then(
       () => {
         res.status(201).json({
@@ -101,41 +102,74 @@ exports.modifySauce = (req, res, next) => {
   };
 
 exports.likeSauce = (req, res, next) => {
-  let sauce = req.params._id;
-  console.log(sauce);
-  Sauce.findOne({_id:req.params._id}).then(
+  Sauce.findOne({_id:req.params.id}).then(
     (sauce) => {
       if(!sauce){
-        return res.status(400).send({
+        return res.status(404).send({
           message: "this is not a sauce",
           data:{}
         });
       }else{
         const currentUserId = req.body.userId;
-        sauce.findOne({
-          usersLiked:currentUserId
-        }).then((userPresent)=>{
-          if(!userPresent){
-            sauce.updateOne({
-              $push: {usersLiked: currentUserId}
-            })
+        const userLike = req.body.like;
+        switch (userLike){
+          case 1:
+            sauce.usersLiked.push(currentUserId);
+            sauce.likes = sauce.usersLiked.length;
+            if (sauce.usersDisliked.includes(currentUserId)){
+              sauce.usersDisliked = sauce.usersDisliked.filter((id) => {
+                return id !== currentUserId;
+              })
+            sauce.dislikes = sauce.usersDisliked.length;
+            }
+          break;
+          case 0:
+            if (sauce.usersDisliked.includes(currentUserId)){
+              sauce.usersDisliked = sauce.usersDisliked.filter((id) => {
+                return id !== currentUserId;
+              })
+            sauce.dislikes = sauce.usersDisliked.length;
+            }
+            if (sauce.usersLiked.includes(currentUserId)){
+              sauce.usersLiked = sauce.usersLiked.filter((id) => {
+                return id !== currentUserId;
+              })
+            sauce.likes = sauce.usersLiked.length;
+            }
+          break
+          case -1:
+            sauce.usersDisliked.push(currentUserId);
+            sauce.dislikes = sauce.usersDisliked.length;
+            if (sauce.usersLiked.includes(currentUserId)){
+              sauce.usersLiked = sauce.usersLiked.filter((id) => {
+                return id !== currentUserId;
+              })
+            sauce.likes = sauce.usersLiked.length;
+            }
+          break
+        }}
+        Sauce.updateOne({_id: req.params.id}, sauce).then(
+          () => {
+            res.status(201).json({
+              message: 'Sauce updated successfully!'
+            });
           }
-        }).catch((error)=>{
+        ).catch(
           (error) => {
             res.status(400).json({
               error: error
             });
           }
-        })
+        );
       } 
-    }
-  ).catch(
-    (error) => {
-      res.status(400).json({
-        error: error
-      });
-    }
-  );
+    )};
+  // ).catch(
+  //   (error) => {
+  //     res.status(400).json({
+  //       error: error
+  //     });
+  //   }
+  // );
     // if(!sauce)
     //   return res.status(400).json({
     //     message: 'sauce does not exist!'
@@ -150,7 +184,7 @@ exports.likeSauce = (req, res, next) => {
   //     });
   //   }
   // });
-}
+// }
 
 exports.deleteSauce = (req, res, next) => {
   Sauce.findOne({_id: req.params.id}).then(
